@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline';">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notecook - 我的食谱</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>我的食谱</h1>
+    <button id="btn-new">新建食谱</button>
+  </header>
+
+  <main>
+    <aside id="recipe-list">
+    </aside>
+
+    <section id="recipe-detail" class="empty">
+      <p>选择或新建一个食谱</p>
+    </section>
+  </main>
+
+  <div id="modal" class="hidden">
+    <div class="modal-content">
+      <h2 id="modal-title">新建食谱</h2>
+      <label>菜名 <input type="text" id="f-name"></label>
+      <label>分类 <input type="text" id="f-category" placeholder="如:家常菜 / 甜点"></label>
+      <label>描述 <textarea id="f-desc" rows="2"></textarea></label>
+      <h3>食材</h3>
+      <div id="ingredients"></div>
+      <button id="btn-add-ing">+ 添加食材</button>
+      <h3>步骤</h3>
+      <div id="steps"></div>
+      <button id="btn-add-step">+ 添加步骤</button>
+      <div class="modal-actions">
+        <button id="btn-save">保存</button>
+        <button id="btn-cancel">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

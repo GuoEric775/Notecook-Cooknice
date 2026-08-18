@@ -1,0 +1,13 @@
+{
+  "name": "notecook-cooknice",
+  "version": "0.1.0",
+  "description": "记录做饭和食谱的 PC 软件",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^33.0.0"
+  },
+  "allowScripts": {}
+}
