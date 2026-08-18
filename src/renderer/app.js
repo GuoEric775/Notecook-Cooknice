@@ -1,10 +1,13 @@
 let recipes = [];
 let currentId = null;
+let pickTargetRow = null;
 
 const listEl = document.getElementById('recipe-list');
 const detailEl = document.getElementById('recipe-detail');
 const modal = document.getElementById('modal');
 const pickModal = document.getElementById('pick-modal');
+const pickGrid = document.getElementById('pick-grid');
+const pickCats = document.getElementById('pick-cats');
 
 const COMMON_INGREDIENTS = {
   '肉类': ['猪肉', '五花肉', '排骨', '牛肉', '羊肉', '鸡肉', '鸡腿', '鸡翅', '鸭肉'],
@@ -37,11 +40,11 @@ function renderList() {
     div.className = 'recipe-item' + (r.id === currentId ? ' selected' : '');
     div.innerHTML = `<div class="name">${escapeHtml(r.name)}</div>
       <div class="cat">${escapeHtml(r.category || '未分类')}</div>`;
-    div.onclick = () => {
+    div.addEventListener('click', () => {
       currentId = r.id;
       renderList();
       renderDetail(r);
-    };
+    });
     listEl.appendChild(div);
   });
 }
@@ -67,9 +70,11 @@ function renderDetail(r) {
       ${r.steps.map((s, idx) => `<div class="detail-step"><b>${idx + 1}.</b> ${escapeHtml(s)}</div>`).join('') || '<p style="color:#aaa">暂无步骤</p>'}
     </div>
     <div class="actions">
-      <button onclick="openEdit('${r.id}')">编辑</button>
-      <button class="danger" onclick="removeRecipe('${r.id}')">删除</button>
+      <button id="btn-edit">编辑</button>
+      <button id="btn-del" class="danger">删除</button>
     </div>`;
+  document.getElementById('btn-edit').addEventListener('click', () => openEdit(r.id));
+  document.getElementById('btn-del').addEventListener('click', () => removeRecipe(r.id));
 }
 
 function escapeHtml(s) {
@@ -78,25 +83,54 @@ function escapeHtml(s) {
   })[c]);
 }
 
+function showPickModal(targetRow) {
+  pickTargetRow = targetRow;
+  pickModal.classList.remove('hidden');
+}
+
 function renderPickGrid(cat) {
-  const pickGrid = document.getElementById('pick-grid');
   pickGrid.innerHTML = '';
   (COMMON_INGREDIENTS[cat] || []).forEach((name) => {
     const b = document.createElement('button');
     b.textContent = name;
-    b.onclick = () => {
-      const names = [...document.querySelectorAll('.ing-name')].map((i) => i.value.trim());
-      if (!names.includes(name)) {
-        document.getElementById('btn-add-ing').click();
-        const rows = [...document.querySelectorAll('.ing-row')];
-        rows[rows.length - 1].querySelector('.ing-name').value = name;
+    b.addEventListener('click', () => {
+      if (pickTargetRow) {
+        pickTargetRow.querySelector('.ing-name').value = name;
+      } else {
+        const names = [...document.querySelectorAll('.ing-name')].map((i) => i.value.trim());
+        if (!names.includes(name)) {
+          document.getElementById('btn-add-ing').click();
+          const rows = [...document.querySelectorAll('.ing-row')];
+          rows[rows.length - 1].querySelector('.ing-name').value = name;
+        }
       }
-    };
+      pickModal.classList.add('hidden');
+    });
     pickGrid.appendChild(b);
   });
 }
 
-document.getElementById('btn-new').onclick = () => openEdit(null);
+function initPickCats() {
+  pickCats.innerHTML = '';
+  const cats = Object.keys(COMMON_INGREDIENTS);
+  cats.forEach((cat, ci) => {
+    const b = document.createElement('button');
+    b.textContent = cat;
+    b.classList.toggle('active', ci === 0);
+    b.addEventListener('click', () => {
+      [...pickCats.children].forEach((x) => x.classList.remove('active'));
+      b.classList.add('active');
+      renderPickGrid(cat);
+    });
+    pickCats.appendChild(b);
+  });
+  renderPickGrid(cats[0]);
+}
+initPickCats();
+
+document.getElementById('btn-pick-close').addEventListener('click', () => pickModal.classList.add('hidden'));
+
+document.getElementById('btn-new').addEventListener('click', () => openEdit(null));
 
 function openEdit(id) {
   const r = id ? recipes.find((x) => x.id === id) : { id: newId(), name: '', category: '', description: '', ingredients: [], steps: [] };
@@ -108,61 +142,40 @@ function openEdit(id) {
 
   const ingEl = document.getElementById('ingredients');
   ingEl.innerHTML = '';
-  const addIng = () => {
+  const addIng = (name, amount) => {
     const row = document.createElement('div');
     row.className = 'ing-row';
-    row.innerHTML = `<input placeholder="食材" class="ing-name"><input placeholder="用量" class="ing-amount"><button class="danger">×</button>`;
-    row.querySelector('.danger').onclick = () => row.remove();
+    row.innerHTML = `<input placeholder="食材" class="ing-name"><input placeholder="用量" class="ing-amount"><button class="pick-row" title="选择常用食材">选</button><button class="danger">×</button>`;
+    row.querySelector('.ing-name').value = name || '';
+    row.querySelector('.ing-amount').value = amount || '';
+    row.querySelector('.pick-row').addEventListener('click', () => showPickModal(row));
+    row.querySelector('.danger').addEventListener('click', () => row.remove());
     ingEl.appendChild(row);
   };
-  r.ingredients.forEach((i) => addIng());
-  [...ingEl.querySelectorAll('.ing-row')].forEach((row, i) => {
-    row.querySelector('.ing-name').value = r.ingredients[i].name;
-    row.querySelector('.ing-amount').value = r.ingredients[i].amount || '';
-  });
-  document.getElementById('btn-add-ing').onclick = addIng;
+  r.ingredients.forEach((i) => addIng(i.name, i.amount));
+  document.getElementById('btn-add-ing').addEventListener('click', () => addIng());
 
-  const ingEl2 = document.getElementById('ingredients');
-  const pickGrid = document.getElementById('pick-grid');
-  const pickCats = document.getElementById('pick-cats');
-  pickCats.innerHTML = '';
-  const cats = Object.keys(COMMON_INGREDIENTS);
-  cats.forEach((cat, ci) => {
-    const b = document.createElement('button');
-    b.textContent = cat;
-    b.onclick = () => {
-      [...pickCats.children].forEach((x) => x.classList.remove('active'));
-      b.classList.add('active');
-      renderPickGrid(cat);
-    };
-    pickCats.appendChild(b);
-  });
-  cats[0] && [...pickCats.children][0].classList.add('active') && renderPickGrid(cats[0]);
-
-  document.getElementById('btn-pick-ing').onclick = () => pickModal.classList.remove('hidden');
-  document.getElementById('btn-pick-close').onclick = () => pickModal.classList.add('hidden');
+  document.getElementById('btn-pick-ing').addEventListener('click', () => showPickModal(null));
 
   const stepEl = document.getElementById('steps');
   stepEl.innerHTML = '';
-  const addStep = () => {
+  const addStep = (text) => {
     const row = document.createElement('div');
     row.className = 'step-row';
     row.innerHTML = `<input placeholder="步骤描述" class="step-text" style="width:100%"><button class="danger">×</button>`;
-    row.querySelector('.danger').onclick = () => row.remove();
+    row.querySelector('.step-text').value = text || '';
+    row.querySelector('.danger').addEventListener('click', () => row.remove());
     stepEl.appendChild(row);
   };
-  r.steps.forEach(() => addStep());
-  [...stepEl.querySelectorAll('.step-row')].forEach((row, i) => {
-    row.querySelector('.step-text').value = r.steps[i];
-  });
-  document.getElementById('btn-add-step').onclick = addStep;
+  r.steps.forEach((s) => addStep(s));
+  document.getElementById('btn-add-step').addEventListener('click', () => addStep());
 
   modal.classList.remove('hidden');
 }
 
-document.getElementById('btn-cancel').onclick = () => modal.classList.add('hidden');
+document.getElementById('btn-cancel').addEventListener('click', () => modal.classList.add('hidden'));
 
-document.getElementById('btn-save').onclick = async () => {
+document.getElementById('btn-save').addEventListener('click', async () => {
   const recipe = {
     id: currentId,
     name: document.getElementById('f-name').value.trim(),
@@ -178,7 +191,7 @@ document.getElementById('btn-save').onclick = async () => {
   await window.api.saveRecipe(recipe);
   modal.classList.add('hidden');
   refresh();
-};
+});
 
 async function removeRecipe(id) {
   if (!confirm('确定删除这个食谱?')) return;

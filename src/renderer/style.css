@@ -113,6 +113,17 @@ main {
 }
 .ing-row, .step-row { display: flex; gap: 6px; margin-bottom: 6px; }
 .ing-row input { width: 40%; }
+.pick-row {
+  background: #a87a4a;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 2px 10px;
+  cursor: pointer;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+.pick-row:hover { background: #c08e56; }
 .modal-content h3 { margin: 12px 0 8px; }
 .modal-actions { display: flex; gap: 10px; margin-top: 16px; justify-content: flex-end; }
 
