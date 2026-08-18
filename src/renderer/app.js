@@ -4,6 +4,17 @@ let currentId = null;
 const listEl = document.getElementById('recipe-list');
 const detailEl = document.getElementById('recipe-detail');
 const modal = document.getElementById('modal');
+const pickModal = document.getElementById('pick-modal');
+
+const COMMON_INGREDIENTS = {
+  '肉类': ['猪肉', '五花肉', '排骨', '牛肉', '羊肉', '鸡肉', '鸡腿', '鸡翅', '鸭肉'],
+  '蔬菜': ['土豆', '西红柿', '白菜', '青菜', '黄瓜', '茄子', '胡萝卜', '洋葱', '青椒', '豆角', '菠菜', '芹菜', '冬瓜', '南瓜', '西兰花', '生菜', '金针菇', '香菇', '木耳'],
+  '蛋奶豆': ['鸡蛋', '鸭蛋', '豆腐', '牛奶', '豆浆', '豆干'],
+  '海鲜': ['虾', '鲫鱼', '草鱼', '带鱼', '鱿鱼', '花甲', '螃蟹', '蛤蜊'],
+  '调料': ['盐', '酱油', '生抽', '老抽', '料酒', '醋', '糖', '蚝油', '香油', '辣椒', '姜', '蒜', '葱', '花椒', '八角'],
+  '主食': ['大米', '面条', '面粉', '饺子皮', '粉条', '粉丝', '年糕'],
+  '水果': ['苹果', '香蕉', '梨', '草莓', '橙子', '西瓜', '葡萄']
+};
 
 function newId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
@@ -67,6 +78,24 @@ function escapeHtml(s) {
   })[c]);
 }
 
+function renderPickGrid(cat) {
+  const pickGrid = document.getElementById('pick-grid');
+  pickGrid.innerHTML = '';
+  (COMMON_INGREDIENTS[cat] || []).forEach((name) => {
+    const b = document.createElement('button');
+    b.textContent = name;
+    b.onclick = () => {
+      const names = [...document.querySelectorAll('.ing-name')].map((i) => i.value.trim());
+      if (!names.includes(name)) {
+        document.getElementById('btn-add-ing').click();
+        const rows = [...document.querySelectorAll('.ing-row')];
+        rows[rows.length - 1].querySelector('.ing-name').value = name;
+      }
+    };
+    pickGrid.appendChild(b);
+  });
+}
+
 document.getElementById('btn-new').onclick = () => openEdit(null);
 
 function openEdit(id) {
@@ -92,6 +121,26 @@ function openEdit(id) {
     row.querySelector('.ing-amount').value = r.ingredients[i].amount || '';
   });
   document.getElementById('btn-add-ing').onclick = addIng;
+
+  const ingEl2 = document.getElementById('ingredients');
+  const pickGrid = document.getElementById('pick-grid');
+  const pickCats = document.getElementById('pick-cats');
+  pickCats.innerHTML = '';
+  const cats = Object.keys(COMMON_INGREDIENTS);
+  cats.forEach((cat, ci) => {
+    const b = document.createElement('button');
+    b.textContent = cat;
+    b.onclick = () => {
+      [...pickCats.children].forEach((x) => x.classList.remove('active'));
+      b.classList.add('active');
+      renderPickGrid(cat);
+    };
+    pickCats.appendChild(b);
+  });
+  cats[0] && [...pickCats.children][0].classList.add('active') && renderPickGrid(cats[0]);
+
+  document.getElementById('btn-pick-ing').onclick = () => pickModal.classList.remove('hidden');
+  document.getElementById('btn-pick-close').onclick = () => pickModal.classList.add('hidden');
 
   const stepEl = document.getElementById('steps');
   stepEl.innerHTML = '';
