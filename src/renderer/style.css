@@ -91,6 +91,7 @@ main {
   justify-content: center;
 }
 #modal.hidden { display: none; }
+#pick-modal.hidden { display: none; }
 
 .modal-content {
   background: #fff;
