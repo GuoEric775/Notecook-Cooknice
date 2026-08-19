@@ -155,8 +155,6 @@ function openEdit(id) {
   r.ingredients.forEach((i) => addIng(i.name, i.amount));
   document.getElementById('btn-add-ing').addEventListener('click', () => addIng());
 
-  document.getElementById('btn-pick-ing').addEventListener('click', () => showPickModal(null));
-
   const stepEl = document.getElementById('steps');
   stepEl.innerHTML = '';
   const addStep = (text) => {

@@ -12,6 +12,12 @@ function createWindow() {
       nodeIntegration: false
     }
   });
+  win.webContents.on('console-message', (_e, level, message) => {
+    console.log('[renderer]', message);
+  });
+  win.webContents.on('render-process-gone', (_e, details) => {
+    console.log('[renderer-gone]', details.reason);
+  });
   win.loadFile(path.join(__dirname, 'renderer', 'index.html'));
 }
 
