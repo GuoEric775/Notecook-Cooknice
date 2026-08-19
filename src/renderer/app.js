@@ -83,8 +83,24 @@ function escapeHtml(s) {
   })[c]);
 }
 
-function showPickModal(targetRow) {
+function showPickModal(targetRow, anchorEl) {
   pickTargetRow = targetRow;
+  const rect = anchorEl ? anchorEl.getBoundingClientRect() : null;
+  if (rect) {
+    const pw = pickModal.offsetWidth || 360;
+    const ph = pickModal.offsetHeight || 400;
+    let x = rect.right + 8;
+    let y = rect.top;
+    if (x + pw > window.innerWidth) x = Math.max(8, rect.left - pw - 8);
+    if (y + ph > window.innerHeight) y = Math.max(8, window.innerHeight - ph - 8);
+    pickModal.style.inset = 'auto';
+    pickModal.style.left = x + 'px';
+    pickModal.style.top = y + 'px';
+  } else {
+    pickModal.style.inset = '0';
+    pickModal.style.left = '';
+    pickModal.style.top = '';
+  }
   pickModal.classList.remove('hidden');
 }
 
@@ -148,7 +164,7 @@ function openEdit(id) {
     row.innerHTML = `<input placeholder="食材" class="ing-name"><input placeholder="用量" class="ing-amount"><button class="pick-row" title="选择常用食材">选</button><button class="danger">×</button>`;
     row.querySelector('.ing-name').value = name || '';
     row.querySelector('.ing-amount').value = amount || '';
-    row.querySelector('.pick-row').addEventListener('click', () => showPickModal(row));
+    row.querySelector('.pick-row').addEventListener('click', (e) => showPickModal(row, e.currentTarget));
     row.querySelector('.danger').addEventListener('click', () => row.remove());
     ingEl.appendChild(row);
   };

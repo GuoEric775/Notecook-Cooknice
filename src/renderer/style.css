@@ -91,7 +91,17 @@ main {
   justify-content: center;
 }
 #modal.hidden { display: none; }
+#pick-modal {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
 #pick-modal.hidden { display: none; }
+#pick-modal .modal-content {
+  width: 360px;
+  pointer-events: auto;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
 
 .modal-content {
   background: #fff;
@@ -138,5 +148,5 @@ main {
 }
 #pick-cats button.active { background: #a87a4a; color: #fff; }
 #pick-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-#pick-grid button { background: #f5efe4; color: #3a3128; text-align: left; }
+#pick-grid button { background: #f5efe4; color: #3a3128; text-align: left; padding: 4px 8px; font-size: 13px; }
 #pick-grid button:hover { background: #a87a4a; color: #fff; }
