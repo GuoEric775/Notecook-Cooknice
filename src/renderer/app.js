@@ -104,6 +104,10 @@ function showPickModal(targetRow, anchorEl) {
   pickModal.classList.remove('hidden');
 }
 
+pickModal.addEventListener('click', (e) => {
+  if (e.target === pickModal) pickModal.classList.add('hidden');
+});
+
 function renderPickGrid(cat) {
   pickGrid.innerHTML = '';
   (COMMON_INGREDIENTS[cat] || []).forEach((name) => {
@@ -169,7 +173,7 @@ function openEdit(id) {
     ingEl.appendChild(row);
   };
   r.ingredients.forEach((i) => addIng(i.name, i.amount));
-  document.getElementById('btn-add-ing').addEventListener('click', () => addIng());
+  document.getElementById('btn-add-ing').onclick = () => addIng();
 
   const stepEl = document.getElementById('steps');
   stepEl.innerHTML = '';
@@ -182,7 +186,7 @@ function openEdit(id) {
     stepEl.appendChild(row);
   };
   r.steps.forEach((s) => addStep(s));
-  document.getElementById('btn-add-step').addEventListener('click', () => addStep());
+  document.getElementById('btn-add-step').onclick = () => addStep();
 
   modal.classList.remove('hidden');
 }
